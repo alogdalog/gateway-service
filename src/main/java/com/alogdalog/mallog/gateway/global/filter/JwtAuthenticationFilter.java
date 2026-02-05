@@ -3,6 +3,7 @@ package com.alogdalog.mallog.gateway.global.filter;
 
 import com.alogdalog.mallog.gateway.global.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpStatus;
 
 // GlobalFilter Component: automatically connect to security filter
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
@@ -31,19 +33,23 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         // path distinguish: skip filter
         String path = getPath(exchange);
+        log.info("➡️ [GatewayFilterChain] route path: {}", path);
         if (isSkipPath(path)) {
+            log.info("️🧭 [ROUTE] Skip Filter");
             return chain.filter(exchange);
         }
 
         // check Access Header
         String authHeader = getAuthHeader(exchange);
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.info("🚫 [UNAUTHORIZED]");
             return unauthorized(exchange);
         }
 
         // extract access token from header(Authorization)
         String accessToken = getAccessToken(authHeader);
         if (!jwtTokenProvider.validateToken(accessToken)) {
+            log.info("🚫 [UNAUTHORIZED]");
             return unauthorized(exchange);
         }
 
@@ -55,6 +61,7 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
                 }))
                 .build();
 
+        log.info("🔐 [ROUTE] Authorization Success");
         return chain.filter(mutatedExchange);
     }
 
