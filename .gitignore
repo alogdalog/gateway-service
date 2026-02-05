@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Environment (env) ###
+.env
+.env.*
+.envrc
+secrets/
+.env/
