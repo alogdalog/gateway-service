@@ -17,6 +17,9 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    private static final String AUTH_HEADER = "Authorization";
+    private static final String BEARER = "Bearer ";
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
 
@@ -50,11 +53,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
 
     private String getAuthHeader(final ServerWebExchange exchange) {
-        return exchange.getRequest().getHeaders().getFirst("Authorization");
+        return exchange.getRequest().getHeaders().getFirst(AUTH_HEADER);
     }
 
     private String getAccessToken(String authHeader) {
-        return authHeader.substring(7);
+        return authHeader.substring(BEARER.length());
     }
 
     private Mono<Void> unauthorized(ServerWebExchange exchange) {
