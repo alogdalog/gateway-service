@@ -7,9 +7,11 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import org.springframework.http.HttpStatus;
+
 
 // GlobalFilter Component: automatically connect to security filter
 
@@ -18,12 +20,20 @@ import org.springframework.http.HttpStatus;
 public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtFilterProperties jwtFilterProperties;
 
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER = "Bearer ";
+    private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+
+        // path distinguish: skip filter
+        String path = getPath(exchange);
+        if (isSkipPath(path)) {
+            return chain.filter(exchange);
+        }
 
         // check Access Header
         String authHeader = getAuthHeader(exchange);
@@ -53,6 +63,14 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         return -1;
     }
 
+    private String getPath(final ServerWebExchange exchange) {
+        return exchange.getRequest().getURI().getPath();
+    }
+
+    private boolean isSkipPath(String path) {
+        return jwtFilterProperties.getSkipPaths().stream()
+                .anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
+    }
 
     private String getAuthHeader(final ServerWebExchange exchange) {
         return exchange.getRequest().getHeaders().getFirst(AUTH_HEADER);
