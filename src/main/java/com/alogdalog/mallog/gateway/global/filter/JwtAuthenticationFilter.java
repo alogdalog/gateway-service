@@ -41,15 +41,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
 
         // check Access Header
         String authHeader = getAuthHeader(exchange);
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.info("🚫 [UNAUTHORIZED]");
+        if (authHeader == null || !authHeader.startsWith(BEARER)) {
+            log.info("🚫 [UNAUTHORIZED] No Bearer On JWT Access Token");
             return unauthorized(exchange);
         }
 
         // extract access token from header(Authorization)
         String accessToken = getAccessToken(authHeader);
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            log.info("🚫 [UNAUTHORIZED]");
+            log.info("🚫 [UNAUTHORIZED] Token Validation Failed");
             return unauthorized(exchange);
         }
 
