@@ -49,7 +49,6 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         // extract access token from header(Authorization)
         String accessToken = getAccessToken(authHeader);
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            log.info("🚫 [UNAUTHORIZED] Token Validation Failed");
             return unauthorized(exchange);
         }
 
