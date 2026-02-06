@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      routes:
+        # [0] auth-service -> /api/auth/**
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/api/auth/**
+
+        # [1] user-service -> /api/users/**
+        - id: user-service
+          uri: http://user-service:8080
+          predicates:
+            - Path=/api/users/**
+
+        # [2] test-service -> /api/test/**
+        - id: test-service
+          uri: http://test-service:8080
+          predicates:
+            - Path=/api/test/**
+
+
+jwt:
+  secret: ${JWT_SECRET}
+
+gateway:
+  jwt:
+    skip-paths:
+      - /api/auth/**
