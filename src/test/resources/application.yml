@@ -1,0 +1,23 @@
+server:
+  port: 0
+
+spring:
+  application:
+    name: gateway-service-test
+
+  cloud:
+    gateway:
+      routes:
+        - id: test
+          uri: https://httpbin.org
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+
+jwt:
+  secret: test-secret
+
+management:
+  server:
+    port: 0

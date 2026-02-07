@@ -31,3 +31,7 @@ management:
   endpoint:
     gateway:
       access: ${MANAGEMENT_ENDPOINT_GATEWAY_ACCESS}
+
+logging:
+  level:
+    com.alogdalog.mallog.gateway: ${LOGGING_LEVEL}
