@@ -1,0 +1,45 @@
+server:
+  port: ${SERVER_PORT}
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: gateway-test
+          uri: ${TEST_UPSTREAM_URI}
+          predicates:
+            - Path=/api/**
+          filters:
+            - StripPrefix=1
+            - AddRequestHeader=X-Gateway, alogdalog
+
+gateway:
+  jwt:
+    secret: ${JWT_SECRET}
+    skip-paths:
+      - /api/auth/**
+      - /actuator/**
+      - /health
+    user-id-claim-key: userId
+    user-id-header-name: X-User-Id
+
+
+management:
+  server:
+    port: ${MANAGEMENT_PORT}
+
+  endpoints:
+    web:
+      exposure:
+        include: ${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE}
+
+  endpoint:
+    gateway:
+      access: ${MANAGEMENT_ENDPOINT_GATEWAY_ACCESS}
+
+logging:
+  level:
+    com.alogdalog.mallog.gateway: ${LOGGING_LEVEL}
