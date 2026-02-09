@@ -36,6 +36,11 @@ out/
 ### VS Code ###
 .vscode/
 
-# local spring config
+### Environment (env) ###
 src/main/resources/.env
 *.env
+.env
+.env.*
+.envrc
+secrets/
+.env/

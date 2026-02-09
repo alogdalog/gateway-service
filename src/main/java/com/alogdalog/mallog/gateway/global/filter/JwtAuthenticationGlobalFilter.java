@@ -47,15 +47,15 @@ public class JwtAuthenticationGlobalFilter implements GlobalFilter, Ordered {
 
         // 2) Authorization 헤더 확인
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            log.info("[JWT] Missing/Invalid Authorization header. path={}", path);
+        if (!isValidBearerAuthorizationHeader(authHeader)) {
+            log.warn("[JWT] Missing/Invalid Authorization header. path={}", path);
             return responseWriter.writeError(exchange, ErrorCode.UNAUTHORIZED);
         }
 
         // 3) Bearer 토큰 추출
         String token = authHeader.substring(BEARER_PREFIX.length()).trim();
-        if (token.isEmpty()) {
-            log.info("[JWT] Empty token. path={}", path);
+        if (isEmptyToken(token)) {
+            log.warn("[JWT] Empty token. path={}", path);
             return responseWriter.writeError(exchange, ErrorCode.UNAUTHORIZED);
         }
 
@@ -78,13 +78,13 @@ public class JwtAuthenticationGlobalFilter implements GlobalFilter, Ordered {
             return chain.filter(mutatedExchange);
 
         } catch (ExpiredJwtException e) {
-            log.info("[JWT] Token expired. path={}", path);
+            log.warn("[JWT] Token expired. path={}", path);
             return responseWriter.writeError(exchange, ErrorCode.EXPIRED_TOKEN);
 
         } catch (JwtException | IllegalArgumentException e) {
             // JwtException: 서명/형식/지원여부 등
             // IllegalArgumentException: userId claim 없음/타입 불일치 등
-            log.info("[JWT] Invalid token. path={} reason={}", path, e.getMessage());
+            log.warn("[JWT] Invalid token. path={} reason={}", path, e.getMessage());
             return responseWriter.writeError(exchange, ErrorCode.INVALID_TOKEN);
         }
     }
@@ -92,5 +92,13 @@ public class JwtAuthenticationGlobalFilter implements GlobalFilter, Ordered {
     private boolean isSkipPath(String path) {
         return jwtProperties.getSkipPaths().stream()
                 .anyMatch(pattern -> PATH_MATCHER.match(pattern, path));
+    }
+
+    private boolean isValidBearerAuthorizationHeader(String authHeader) {
+        return authHeader != null && authHeader.startsWith(BEARER_PREFIX);
+    }
+
+    private boolean isEmptyToken(String token) {
+        return token.isEmpty();
     }
 }
