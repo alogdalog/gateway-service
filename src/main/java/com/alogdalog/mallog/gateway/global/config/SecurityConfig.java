@@ -15,22 +15,12 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-                // Gateway: CSRF OFF
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-
-                // Disable Default login
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
-
-                // Authority check in GlobalFilter
-                // route auth request direct to auth service
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers(
-                                "/api/auth/**"
-                        ).permitAll()
-                        .anyExchange().permitAll()
-                )
+                .authorizeExchange(ex -> ex.anyExchange().permitAll())
                 .build();
     }
+
 
 }

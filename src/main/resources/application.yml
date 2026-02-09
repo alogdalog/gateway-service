@@ -21,7 +21,7 @@ spring:
 
             # [2] test-service -> /api/test/**
             - id: test-service
-              uri: http://test-service:8080
+              uri: ${TEST_SERVICE_UPSTREAM_URI}
               predicates:
                 - Path=/api/test/**
 
