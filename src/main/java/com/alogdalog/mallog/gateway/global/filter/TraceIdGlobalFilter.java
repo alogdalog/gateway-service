@@ -1,20 +1,25 @@
 package com.alogdalog.mallog.gateway.global.filter;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@Slf4j
 @Component
-public class TraceIdGlobalFilter implements GlobalFilter {
+public class TraceIdGlobalFilter implements GlobalFilter, Ordered {
 
-    private static final Logger log = LoggerFactory.getLogger(TraceIdGlobalFilter.class);
     private static final String TRACE_ID_HEADER = "X-Trace-Id";
+
+    @Override
+    public int getOrder() {
+        return -100; // 가장 먼저
+    }
 
     /**
      * 모든 요청에 대해 호출되는 GlobalFilter 메서드
@@ -33,6 +38,12 @@ public class TraceIdGlobalFilter implements GlobalFilter {
                         // 요청 헤더에 tracd id 추가
                         builder.header(TRACE_ID_HEADER, traceId)
                 ).build();
+
+        // 일단 응다베 헤더에 넣어서 디버깅하기 위함
+        mutatedExchange.getResponse().beforeCommit(() -> {
+            mutatedExchange.getResponse().getHeaders().set(TRACE_ID_HEADER, traceId);
+            return Mono.empty();
+        });
 
         // gateway-service에서 로그 남기기
         log.info("[Gateway] traceId={} | method={} | path={}",

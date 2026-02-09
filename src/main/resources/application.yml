@@ -16,8 +16,16 @@ spring:
             - StripPrefix=1
             - AddRequestHeader=X-Gateway, alogdalog
 
-jwt:
-  secret: ${JWT_SECRET}
+gateway:
+  jwt:
+    secret: ${JWT_SECRET}
+    skip-paths:
+      - /api/auth/**
+      - /actuator/**
+      - /health
+    user-id-claim-key: userId
+    user-id-header-name: X-User-Id
+
 
 management:
   server:
