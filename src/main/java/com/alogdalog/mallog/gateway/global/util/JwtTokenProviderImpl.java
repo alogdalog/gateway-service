@@ -45,7 +45,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
             return false;
 
         } catch (SecurityException | SignatureException e) {
-            // Wrong Security Key Userd
+            // Wrong Security Key Used
             log.warn("🚫 [UNAUTHORIZED] JWT INVALID SIGNATURE: {}", e.getMessage());
             return false;
 
